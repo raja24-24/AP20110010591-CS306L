@@ -48,3 +48,123 @@ digit [0-9]
 "&&" {yylval = strdup(yytext);return T_and;}
 . return yytext[0];
 %%
+
+
+
+
+
+The following is the CFG used -
+
+S
+: START
+;
+START
+: INCLUDE T_lt H T_gt MAIN
+| INCLUDE "\"" H "\"" MAIN
+;
+MAIN
+: VOID MAINTOK BODY
+| INT MAINTOK BODY
+;
+BODY
+: '{' C '}'
+;
+C
+: C statement ';'
+| C LOOPS
+| statement ';'
+| LOOPS
+;
+LOOPS
+: WHILE '(' COND ')' LOOPBODY
+| FOR '(' ASSIGN_EXPR ';' COND ';' statement ')' LOOPBODY
+| IF '(' COND ')' LOOPBODY
+| IF '(' COND ')' LOOPBODY ELSE LOOPBODY
+;
+
+LOOPBODY
+: '{' LOOPC '}'
+| ';'
+| statement ';'
+;
+LOOPC
+: LOOPC statement ';'
+| LOOPC LOOPS
+| statement ';'
+| LOOPS
+;
+statement
+: ASSIGN_EXPR
+| EXP
+| TERNARY_EXPR
+| PRINT
+;
+COND
+: LIT RELOP LIT
+| LIT
+| LIT RELOP LIT bin_boolop LIT RELOP LIT
+| un_boolop '(' LIT RELOP LIT ')'
+| un_boolop LIT RELOP LIT
+| LIT bin_boolop LIT
+| un_boolop '(' LIT ')'
+| un_boolop LIT
+;
+ASSIGN_EXPR
+: ID T_eq EXP
+| TYPE ID T_eq EXP
+;
+EXP
+: ADDSUB
+| EXP T_lt ADDSUB
+| EXP T_gt ADDSUB
+;
+ADDSUB
+: TERM
+| EXP T_pl TERM
+| EXP T_min TERM
+;
+TERM
+: FACTOR
+| TERM T_mul FACTOR
+| TERM T_div FACTOR
+;
+
+FACTOR
+: LIT
+| '(' EXP ')'
+;
+PRINT
+
+LIT
+
+TYPE
+
+RELOP
+: COUT T_lt T_lt STRING
+| COUT T_lt T_lt STRING T_lt T_lt ENDL
+;
+: ID
+| NUM
+;
+: INT
+| CHAR
+| FLOAT
+;
+: T_lt
+| T_gt
+| T_lteq
+| T_gteq
+| T_neq
+| T_eqeq
+;
+bin_boolop
+: T_and
+| T_or
+;
+un_arop
+: T_incr
+| T_decr
+;
+un_boolop
+: T_not
+;
